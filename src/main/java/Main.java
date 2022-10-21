@@ -40,7 +40,7 @@ public class Main {
             basket.printForBuy();
             if (jsonFile.exists()) {
                 if (format.equals("json")) {
-                    basket.loadJson();
+                    basket.load();
                 } else {
                     Basket.loadTxtFile(textFile);
                 }
@@ -86,7 +86,7 @@ public class Main {
         if (enabled.equals("true")) {
             jsonFile = new File(fileName + "." + format);
             if (format.equals("json")) {
-                basket.saveJson();
+                basket.save2();
             } else {
                 basket.saveTxt(textFile);
             }

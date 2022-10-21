@@ -1,4 +1,6 @@
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -94,7 +96,7 @@ public class Basket implements Serializable {
         String s = mapper.writeValueAsString(map);
         System.out.println(s);
 
-        try(FileWriter file = new FileWriter("json.json")){
+        try(FileWriter file = new FileWriter("basket.json")){
             file.write(s);
         }
     }
@@ -102,12 +104,17 @@ public class Basket implements Serializable {
         Basket basket = new Basket();
         ObjectMapper mapper = new ObjectMapper();
 
-        mapper.writeValue(new File("json.json"),basket);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        String s = mapper.writeValueAsString(basket);
+
+        FileWriter file = new FileWriter("basket.json");
+        file.write(s);
+        file.close();
     }
 
     static Basket load()throws IOException,ParseException{
         ObjectMapper mapper = new ObjectMapper();
-        Basket basket = (mapper.readValue(new File("json.json"),Basket.class));
+        Basket basket = (mapper.readValue(new File("basket.json"),Basket.class));
 
         return basket;
     }
