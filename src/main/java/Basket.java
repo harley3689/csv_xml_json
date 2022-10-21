@@ -94,7 +94,7 @@ public class Basket implements Serializable {
         String s = mapper.writeValueAsString(map);
         System.out.println(s);
 
-        try(FileWriter file = new FileWriter("json.json")){
+        try(FileWriter file = new FileWriter("basket.json")){
             file.write(s);
         }
     }
@@ -102,12 +102,12 @@ public class Basket implements Serializable {
         Basket basket = new Basket();
         ObjectMapper mapper = new ObjectMapper();
 
-        mapper.writeValue(new File("json.json"),basket);
+        mapper.writeValue(new File("basket.json"),basket);
     }
 
     static Basket load()throws IOException,ParseException{
         ObjectMapper mapper = new ObjectMapper();
-        Basket basket = (mapper.readValue(new File("json.json"),Basket.class));
+        Basket basket = (mapper.readValue(new File("basket.json"),Basket.class));
 
         return basket;
     }
