@@ -1,18 +1,1 @@
-{
-  "Price": [
-    100,
-    200,
-    300
-  ],
-  "ProductCount": [
-    1,
-    0,
-    0
-  ],
-  "Total": 100,
-  "Product": [
-    "Apples",
-    "Bread",
-    "Potatoes"
-  ]
-}
+{"prices":null,"productsName":null,"productsCount":null,"sum":0}
