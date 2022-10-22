@@ -1,7 +1,9 @@
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -111,10 +113,11 @@ public class Basket implements Serializable {
         file.write(s);
         file.close();
     }
-
     static Basket load()throws IOException,ParseException{
         ObjectMapper mapper = new ObjectMapper();
-        Basket basket = (mapper.readValue(new File("basket.json"),Basket.class));
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        Basket basket = mapper.readValue(new File("basket.json"),Basket.class);
 
         return basket;
     }
