@@ -1,12 +1,8 @@
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.internal.bind.JsonTreeReader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@JsonPropertyOrder({"productsName","prices","productsCount","sum"})
 public class Basket implements Serializable {
     protected int[] prices;
     protected String[] productsName;
@@ -87,7 +84,9 @@ public class Basket implements Serializable {
             throw new RuntimeException("Error!");
         }
     }
+
      public void save()throws IOException{
+
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> map= new HashMap<>();
 
@@ -103,52 +102,25 @@ public class Basket implements Serializable {
         }
     }
     public void save2()throws IOException{
-        Basket basket = new Basket();
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        String s = mapper.writeValueAsString(basket);
+        String basket = mapper.writeValueAsString(this);
 
         FileWriter file = new FileWriter("basket.json");
-        file.write(s);
+        file.write(basket);
         file.close();
     }
-    static Basket load()throws IOException,ParseException{
+
+
+    public Basket load()throws IOException,ParseException{
         ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
+        //mapper.readValues(mapper.createParser("basket.json"),Basket.class);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         Basket basket = mapper.readValue(new File("basket.json"),Basket.class);
-
+        printCart();
         return basket;
     }
-
-
-
-    public void saveJson() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().enableComplexMapKeySerialization().create();
-        try (FileWriter writ = new FileWriter("basket.json")) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("Product", productsName);
-            map.put("Price", prices);
-            map.put("ProductCount", productsCount);
-            map.put("Total", sum);
-            gson.toJson(map, writ);
-        } catch (IOException e) {
-            throw new RuntimeException("Error!");
-        }
-    }
-
-    public void loadJson()throws IOException {
-        JSONParser parser = new JSONParser();
-        try {
-            Object obj = parser.parse(new FileReader("basket.json"));
-            JSONObject js = (JSONObject) obj;
-            System.out.println(js);
-        } catch (IOException | ParseException e) {
-            throw new RuntimeException("Error!");
-        }
-    }
-
+    //Распарить= дисериализовать
 
     public static Basket loadTxtFile(File textFile) throws IOException {
         Path path = textFile.toPath();

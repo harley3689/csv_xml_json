@@ -1,5 +1,10 @@
 
 
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.Deserializers;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.MapType;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -80,12 +85,12 @@ public class Main {
             basket.addToCart(productNumber, productCount);
             log.log(productNumber + 1, productCount);
         }
-        basket.printCart();
 
         Main.node(doc, "save");
         if (enabled.equals("true")) {
             jsonFile = new File(fileName + "." + format);
             if (format.equals("json")) {
+                basket.printCart();
                 basket.save2();
             } else {
                 basket.saveTxt(textFile);
@@ -93,6 +98,7 @@ public class Main {
             log.exportCSV(csvFile);
         }
     }
+
     private static void node(Document doc, String name) {
         NodeList nodeList = doc.getElementsByTagName(name);
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -108,4 +114,5 @@ public class Main {
         }
     }
 }
+
 
