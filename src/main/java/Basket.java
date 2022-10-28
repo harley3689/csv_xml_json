@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -30,7 +29,6 @@ public class Basket implements Serializable, Cloneable {
         this.prices = prices;
         this.productsName = productsName;
         this.productsCount = new int[prices.length];
-        this.sum = sum;
     }
 
     public Basket() {
@@ -40,12 +38,14 @@ public class Basket implements Serializable, Cloneable {
         productsCount[productNum] += amount;
     }
 
-    public void setProductsName() {
+    public void setProductsName(String[] productsName) {
         this.productsName = productsName;
     }
 
     public void setPrices(int[] prices) {
-        this.prices = prices;
+        for (int i = 0; i < prices.length; i++) {
+            this.prices[i] = prices[i];
+        }
     }
 
     public void setSum(int sum) {
@@ -54,7 +54,7 @@ public class Basket implements Serializable, Cloneable {
     public void setCount(int[] productsCount) {
         for (int i = 0; i < this.productsCount.length; i++) {
             this.productsCount[i]=productsCount[i];
-        }
+       }
     }
 
     public String[] getProductsName() {
@@ -112,14 +112,17 @@ public class Basket implements Serializable, Cloneable {
 
         try (FileReader reader = new FileReader(jsonFile)) {
             Basket basket1 = gson.fromJson(reader,Basket.class);
-            setCount(basket1.getProductsCount());
-            setSum(basket1.getSum());
+            setCount(basket1.productsCount);
+            setSum(basket1.sum);
+            setProductsName(basket1.productsName);
+            setPrices(basket1.prices);
             System.out.println(basket1);
             return (Basket) basket1.clone();
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error!");
         }
     }
+
     public Basket loadTxtFile(File textFile) throws IOException {
         Basket basket = new Basket();
         Path path = textFile.toPath();
