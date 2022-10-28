@@ -100,10 +100,8 @@ public class Basket implements Serializable, Cloneable {
         GsonBuilder builder = new GsonBuilder();
         builder.excludeFieldsWithoutExposeAnnotation();
         Gson gson = builder.create();
-
-
         try (FileWriter writer = new FileWriter(jsonFile)) {
-            gson.toJson(this,writer);
+            gson.toJson(this, writer);
         }
     }
 
@@ -114,64 +112,14 @@ public class Basket implements Serializable, Cloneable {
 
         try (FileReader reader = new FileReader(jsonFile)) {
             Basket basket1 = gson.fromJson(reader,Basket.class);
-
             setCount(basket1.getProductsCount());
             setSum(basket1.getSum());
             System.out.println(basket1);
-
             return (Basket) basket1.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
     }
-
-    public Basket load4(File jsonFile) throws IOException,ParseException {
-
-        return null;
-    }
-
-
-    /*public Basket load3(File jsonFile) throws IOException {
-        Gson gson = new GsonBuilder().create();
-
-
-        return null;
-    }
-
-    public Basket load2(File jsonFile) throws IOException, ParseException {
-        JSONParser parser = new JSONParser();
-
-        try {
-            Object obj = parser.parse(new FileReader(jsonFile));
-            JSONObject jsonObject = (JSONObject) obj;
-            JSONArray arr = (JSONArray) jsonObject.get("count");
-            for (Object str : arr) {
-                int c = Integer.valueOf(String.valueOf(str));
-                int[] coun = new int[c];
-
-                System.out.print(Arrays.toString(coun));
-            }
-
-
-            //System.out.println(Arrays.toString(values));
-            //Integer.parseInt(c);
-            //setCount(c);
-            //System.out.println(count);
-
-            //setSum(Integer.parseInt(t));
-        }  catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-    /*public Basket load(File jsonFile)throws IOException,ParseException{
-        ObjectMapper mapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        Basket basket = mapper.readValue(jsonFile,Basket.class);
-        return basket;
-    }*/
-
     public Basket loadTxtFile(File textFile) throws IOException {
         Basket basket = new Basket();
         Path path = textFile.toPath();
