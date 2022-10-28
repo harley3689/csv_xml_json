@@ -1,10 +1,6 @@
-
-
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,7 +12,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Scanner;
 
 public class Main {
@@ -26,7 +24,7 @@ public class Main {
     protected static int[] prices = {100, 200, 300};
     protected static String[] products = {"Apples", "Bread", "Potatoes"};
 
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ParseException {
+    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ParseException, CloneNotSupportedException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(new File("shop.xml"));
@@ -37,17 +35,18 @@ public class Main {
         File textFile = new File("basket.txt");
         File jsonFile = new File("basket.json");
         ClientLog log = new ClientLog();
-        Basket basket = new Basket(prices, products);
+        Basket basket = new Basket(prices,products);
 
 
         node(doc, "load");
         if (enabled.equals("true")) {
-            basket.printForBuy();
+           basket.printForBuy();
             if (jsonFile.exists()) {
                 if (format.equals("json")) {
-                    basket.load();
+                    basket.loadJson(jsonFile);
+                    basket.getSum();
                 } else {
-                    Basket.loadTxtFile(textFile);
+                    basket.loadTxtFile(textFile);
                 }
             }
         }
@@ -88,17 +87,16 @@ public class Main {
 
         Main.node(doc, "save");
         if (enabled.equals("true")) {
-            jsonFile = new File(fileName + "." + format);
+            textFile = new File(fileName + "." + format);
             if (format.equals("json")) {
                 basket.printCart();
-                basket.save2();
+                basket.saveJson(jsonFile);
             } else {
                 basket.saveTxt(textFile);
             }
             log.exportCSV(csvFile);
         }
     }
-
     private static void node(Document doc, String name) {
         NodeList nodeList = doc.getElementsByTagName(name);
         for (int i = 0; i < nodeList.getLength(); i++) {
