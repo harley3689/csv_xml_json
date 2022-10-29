@@ -22,15 +22,14 @@ public class Main {
     private static String enabled;
     private static String fileName;
     private static String format;
-    protected static int[] prices = {100, 200, 300};
-    protected static String[] products = {"Apples", "Bread", "Potatoes"};
+    private static int[] prices = {100, 200, 300};
+    private static String[] products = {"Apples", "Bread", "Potatoes"};
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ParseException, CloneNotSupportedException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(new File("shop.xml"));
 
-        Scanner scanner = new Scanner(System.in);
 
         File csvFile = new File("log.csv");
         File textFile = new File("basket.txt");
@@ -41,17 +40,17 @@ public class Main {
 
         node(doc, "load");
         if (enabled.equals("true")) {
-           basket.printForBuy();
             if (jsonFile.exists()) {
                 if (format.equals("json")) {
-                    basket.loadJson(jsonFile);
-                    basket.getSum();
-                } else {
-                    basket.loadTxtFile(textFile);
+                    Basket.loadJson();
+                } else if (format.equals("txt")){
+                     Basket.loadTxtFile(textFile);
                 }
             }
         }
 
+        basket.printForBuy();
+        Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Enter the product number and quantity, or 'end' to exit.");
             String input = scanner.nextLine();
@@ -88,10 +87,10 @@ public class Main {
 
         Main.node(doc, "save");
         if (enabled.equals("true")) {
+            basket.printCart();
             textFile = new File(fileName + "." + format);
             if (format.equals("json")) {
-                basket.printCart();
-                basket.saveJson(jsonFile);
+                basket.saveJson();
             } else {
                 basket.saveTxt(textFile);
             }

@@ -1,6 +1,9 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
@@ -9,20 +12,19 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-public class Basket implements Serializable, Cloneable {
-
+public class Basket implements Serializable{
     @Expose
     @SerializedName("price")
-    protected  int[] prices;
+    private int[] prices;
     @Expose
     @SerializedName("name")
-    protected  String[] productsName;
+    private String[] productsName;
     @Expose
     @SerializedName("count")
-    public int[] productsCount;
+    private int[] productsCount;
     @Expose
     @SerializedName("total")
-    public int sum;
+    private int sum;
 
 
     public Basket(int[] prices, String[] productsName) {
@@ -31,7 +33,7 @@ public class Basket implements Serializable, Cloneable {
         this.productsCount = new int[prices.length];
     }
 
-    public Basket() {
+    private Basket() {
     }
 
     public void addToCart(int productNum, int amount) {
@@ -43,9 +45,7 @@ public class Basket implements Serializable, Cloneable {
     }
 
     public void setPrices(int[] prices) {
-        for (int i = 0; i < prices.length; i++) {
-            this.prices[i] = prices[i];
-        }
+       this.prices = prices;
     }
 
     public void setSum(int sum) {
@@ -62,7 +62,7 @@ public class Basket implements Serializable, Cloneable {
     }
 
     public int[] getProductsCount() {
-        return this.productsCount;
+        return productsCount;
     }
 
     public int[] getPrices() {
@@ -96,34 +96,45 @@ public class Basket implements Serializable, Cloneable {
         }
     }
 
-    public void saveJson(File jsonFile) throws RuntimeException, IOException, CloneNotSupportedException {
+    public void saveJson() throws RuntimeException, IOException, CloneNotSupportedException {
         GsonBuilder builder = new GsonBuilder();
         builder.excludeFieldsWithoutExposeAnnotation();
         Gson gson = builder.create();
-        try (FileWriter writer = new FileWriter(jsonFile)) {
+        try (FileWriter writer = new FileWriter("basket.json")) {
             gson.toJson(this, writer);
         }
     }
 
-    public Basket loadJson(File jsonFile) throws IOException,ParseException {
+    public void save() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(new FileWriter("basket.json"), this);
+    }
+
+    public static Basket load() throws NullPointerException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        //mapper.readValue(new File("basket.json"), Basket.class);
+        return mapper.readValue(new FileReader("basket.json"), Basket.class);
+    }
+
+    public static Basket loadJson() throws IOException,ParseException {
         GsonBuilder builder = new GsonBuilder();
         builder.excludeFieldsWithoutExposeAnnotation();
         Gson gson = builder.create();
 
-        try (FileReader reader = new FileReader(jsonFile)) {
-            Basket basket1 = gson.fromJson(reader,Basket.class);
-            setCount(basket1.productsCount);
-            setSum(basket1.sum);
-            setProductsName(basket1.productsName);
-            setPrices(basket1.prices);
-            System.out.println(basket1);
-            return (Basket) basket1.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Error!");
-        }
+
+            FileReader reader = new FileReader("basket.json");
+        Basket basket;
+        basket = gson.fromJson(reader,Basket.class);
+        basket.setCount(basket.productsCount);
+            basket.setSum(basket.sum);
+            //setProductsName(basket.productsName);
+            //setPrices(basket1.prices);
+            System.out.println(basket);
+
+            return (Basket) basket;
     }
 
-    public Basket loadTxtFile(File textFile) throws IOException {
+    public static Basket loadTxtFile(File textFile) throws IOException {
         Basket basket = new Basket();
         Path path = textFile.toPath();
         List<String> basketList = Files.readAllLines(path);
@@ -156,7 +167,7 @@ public class Basket implements Serializable, Cloneable {
     protected void printForBuy() {
         System.out.println("List of available products: ");
         for (int i = 0; i < productsName.length; i++) {
-            System.out.println((i + 1) + " " + productsName[i] + " " + prices[i] + " " + sum + " rub.");
+            System.out.println((i + 1) + ": " + productsName[i] + ": " + prices[i] + " - " + productsCount[i]);
         }
     }
 }
