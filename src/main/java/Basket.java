@@ -1,9 +1,13 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
-import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
@@ -11,18 +15,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
+
 
 public class Basket implements Serializable{
-    @Expose
-    @SerializedName("price")
-    private int[] prices;
     @Expose
     @SerializedName("name")
     private String[] productsName;
     @Expose
+    @SerializedName("price")
+    private int[] prices;
+    @Expose
     @SerializedName("count")
     private int[] productsCount;
-    @Expose
+    //@Expose
     @SerializedName("total")
     private int sum;
 
@@ -30,7 +36,8 @@ public class Basket implements Serializable{
     public Basket(int[] prices, String[] productsName) {
         this.prices = prices;
         this.productsName = productsName;
-        this.productsCount = new int[prices.length];
+        this.productsCount = new int[productsName.length];
+        this.sum = sum;
     }
 
     private Basket() {
@@ -52,9 +59,7 @@ public class Basket implements Serializable{
         this.sum = sum;
     }
     public void setCount(int[] productsCount) {
-        for (int i = 0; i < this.productsCount.length; i++) {
-            this.productsCount[i]=productsCount[i];
-       }
+        this.productsCount = productsCount;
     }
 
     public String[] getProductsName() {
@@ -79,7 +84,7 @@ public class Basket implements Serializable{
             int allCount= this.productsCount[i];
             int priceSum = prices[i] * allCount;
             if (allCount > 0) {
-                sum = priceSum;
+                sum += priceSum;
                 System.out.println(productsName[i] + " " + allCount + " " + priceSum);
             }
         }
@@ -96,42 +101,47 @@ public class Basket implements Serializable{
         }
     }
 
-    public void saveJson() throws RuntimeException, IOException, CloneNotSupportedException {
+
+
+    public void saveJson(File jsonFile) throws RuntimeException, IOException, CloneNotSupportedException {
         GsonBuilder builder = new GsonBuilder();
         builder.excludeFieldsWithoutExposeAnnotation();
         Gson gson = builder.create();
-        try (FileWriter writer = new FileWriter("basket.json")) {
+        try (FileWriter writer = new FileWriter(jsonFile)) {
             gson.toJson(this, writer);
         }
     }
 
-    public void save() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new FileWriter("basket.json"), this);
+    public void save (File jsonFile) throws FileNotFoundException {
+        try(PrintWriter writer = new PrintWriter(jsonFile)){
+            Gson gson = new Gson();
+            String json = gson.toJson(this);
+            writer.println(json);
+        }
     }
 
-    public static Basket load() throws NullPointerException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        //mapper.readValue(new File("basket.json"), Basket.class);
-        return mapper.readValue(new FileReader("basket.json"), Basket.class);
+    public static Basket load (File jsonFile){
+        try(Scanner scan = new Scanner(System.in)){
+            Gson gson = new Gson();
+            String s = scan.nextLine();
+            Basket basket = gson.fromJson(s,Basket.class);
+            return basket;
+        }
     }
 
-    public static Basket loadJson() throws IOException,ParseException {
+    public static Basket loadJson(File jsonFile) throws IOException,ParseException {
         GsonBuilder builder = new GsonBuilder();
         builder.excludeFieldsWithoutExposeAnnotation();
         Gson gson = builder.create();
 
 
-            FileReader reader = new FileReader("basket.json");
-        Basket basket;
-        basket = gson.fromJson(reader,Basket.class);
-        basket.setCount(basket.productsCount);
-            basket.setSum(basket.sum);
-            //setProductsName(basket.productsName);
-            //setPrices(basket1.prices);
-            System.out.println(basket);
+        FileReader reader = new FileReader(jsonFile);
+        gson.fromJson(reader,Basket.class);
+        Basket basket = new Basket();
 
-            return (Basket) basket;
+        System.out.println(basket);
+
+        return (Basket) basket;
     }
 
     public static Basket loadTxtFile(File textFile) throws IOException {
