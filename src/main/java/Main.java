@@ -22,11 +22,13 @@ public class Main {
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ParseException, CloneNotSupportedException {
         int[] prices = {100, 200, 300};
         String[] products = {"Apples", "Bread", "Potatoes"};
+        int [] counts = new int[3];
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(new File("shop.xml"));
         Basket basket = new Basket(prices,products);
 
+        Scanner scanner = new Scanner(System.in);
 
         File csvFile = new File("log.csv");
         File textFile = new File("basket.txt");
@@ -34,25 +36,31 @@ public class Main {
         ClientLog log = new ClientLog();
 
 
-        node(doc, "load");
+        Main.node(doc, "load");
         if (enabled.equals("true")) {
             if (jsonFile.exists()) {
                 if (format.equals("json")) {
                     Basket.load(jsonFile);
-                } else if (format.equals("txt")){
-                     Basket.loadTxtFile(textFile);
+                } else {
+                    Basket.loadTxtFile(textFile);
                 }
             }
         }
 
-        Scanner scanner = new Scanner(System.in);
+        basket.printForBuy();
         while (true) {
-            basket.printForBuy();
             System.out.println("Enter the product number and quantity, or 'end' to exit.");
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("end")) {
+                basket.printCart();
                 break;
             }
+
+            /*String[] parts = input.split(" ");
+            int productNumber = Integer.parseInt(parts[0])-1;
+            int productCount = Integer.parseInt(parts[1]);
+
+            counts[productNumber] += productCount;*/
             String[] parts = input.split(" ");
             if (parts.length != 2) {
                 continue;
@@ -83,12 +91,11 @@ public class Main {
 
         Main.node(doc, "save");
         if (enabled.equals("true")) {
-            basket.printCart();
             textFile = new File(fileName + "." + format);
             if (format.equals("json")) {
-                basket.save(jsonFile);
+                basket.save(new File("basket.json"));
             } else {
-                basket.saveTxt(textFile);
+                basket.saveTxt(new File("basket.txt"));
             }
             log.exportCSV(csvFile);
         }

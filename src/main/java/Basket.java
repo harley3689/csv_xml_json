@@ -1,14 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -28,7 +21,7 @@ public class Basket implements Serializable{
     @Expose
     @SerializedName("count")
     private int[] productsCount;
-    //@Expose
+    @Expose
     @SerializedName("total")
     private int sum;
 
@@ -37,7 +30,6 @@ public class Basket implements Serializable{
         this.prices = prices;
         this.productsName = productsName;
         this.productsCount = new int[productsName.length];
-        this.sum = sum;
     }
 
     private Basket() {
@@ -120,29 +112,15 @@ public class Basket implements Serializable{
         }
     }
 
-    public static Basket load (File jsonFile){
+    public static Basket load (File jsonFile) throws FileNotFoundException {
         try(Scanner scan = new Scanner(System.in)){
             Gson gson = new Gson();
-            String s = scan.nextLine();
-            Basket basket = gson.fromJson(s,Basket.class);
+            String str = scan.nextLine();
+            Basket basket = gson.fromJson(str,Basket.class);
             return basket;
         }
     }
 
-    public static Basket loadJson(File jsonFile) throws IOException,ParseException {
-        GsonBuilder builder = new GsonBuilder();
-        builder.excludeFieldsWithoutExposeAnnotation();
-        Gson gson = builder.create();
-
-
-        FileReader reader = new FileReader(jsonFile);
-        gson.fromJson(reader,Basket.class);
-        Basket basket = new Basket();
-
-        System.out.println(basket);
-
-        return (Basket) basket;
-    }
 
     public static Basket loadTxtFile(File textFile) throws IOException {
         Basket basket = new Basket();
