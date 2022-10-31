@@ -21,59 +21,26 @@ public class Basket implements Serializable{
     @Expose
     @SerializedName("count")
     private int[] productsCount;
-    @Expose
-    @SerializedName("total")
-    private int sum;
 
-
-    public Basket(int[] prices, String[] productsName) {
+    public Basket(String[] productsName, int[] prices) {
         this.prices = prices;
         this.productsName = productsName;
         this.productsCount = new int[productsName.length];
     }
-
     private Basket() {
     }
-
     public void addToCart(int productNum, int amount) {
         productsCount[productNum] += amount;
     }
-
-    public void setProductsName(String[] productsName) {
-        this.productsName = productsName;
-    }
-
-    public void setPrices(int[] prices) {
-       this.prices = prices;
-    }
-
-    public void setSum(int sum) {
-        this.sum = sum;
-    }
-    public void setCount(int[] productsCount) {
+    public void setCount() {
         this.productsCount = productsCount;
     }
 
-    public String[] getProductsName() {
-        return productsName;
-    }
-
-    public int[] getProductsCount() {
-        return productsCount;
-    }
-
-    public int[] getPrices() {
-        return prices;
-    }
-
-    public int getSum() {
-        return this.sum;
-    }
-
     protected void printCart() {
+        int sum=0;
         System.out.println("Basket:");
         for (int i = 0; i < productsCount.length; i++) {
-            int allCount= this.productsCount[i];
+            int allCount= productsCount[i];
             int priceSum = prices[i] * allCount;
             if (allCount > 0) {
                 sum += priceSum;
@@ -83,40 +50,32 @@ public class Basket implements Serializable{
         System.out.println("Total: " + sum + " rub.");
     }
 
-    public void saveTxt(File textFile) {
-        try (PrintWriter writer = new PrintWriter(textFile)) {
+    public void saveTxt(File textFile) throws FileNotFoundException {
+        try(PrintWriter writer = new PrintWriter(textFile);) {
             for (int i = 0; i < productsName.length; i++) {
                 writer.println(productsName[i] + " " + prices[i] + " " + productsCount[i]);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Error!");
         }
     }
 
 
-
-    public void saveJson(File jsonFile) throws RuntimeException, IOException, CloneNotSupportedException {
-        GsonBuilder builder = new GsonBuilder();
-        builder.excludeFieldsWithoutExposeAnnotation();
-        Gson gson = builder.create();
-        try (FileWriter writer = new FileWriter(jsonFile)) {
-            gson.toJson(this, writer);
-        }
-    }
-
-    public void save (File jsonFile) throws FileNotFoundException {
-        try(PrintWriter writer = new PrintWriter(jsonFile)){
-            Gson gson = new Gson();
+    public void save (File jsonFile) throws Exception {
+        try(PrintWriter writer = new PrintWriter("basket.json")){
+            GsonBuilder builder = new GsonBuilder();
+            builder.excludeFieldsWithoutExposeAnnotation();
+            Gson gson = builder.create();
             String json = gson.toJson(this);
             writer.println(json);
         }
     }
 
-    public static Basket load (File jsonFile) throws FileNotFoundException {
-        try(Scanner scan = new Scanner(System.in)){
-            Gson gson = new Gson();
-            String str = scan.nextLine();
-            Basket basket = gson.fromJson(str,Basket.class);
+    public static Basket load (File jsonFile) throws IOException {
+        try(Scanner scan = new Scanner(jsonFile)){
+            GsonBuilder builder = new GsonBuilder();
+            builder.excludeFieldsWithoutExposeAnnotation();
+            Gson gson = builder.create();
+            String json = scan.nextLine();
+            Basket basket = gson.fromJson (json,Basket.class);
             return basket;
         }
     }
@@ -137,7 +96,7 @@ public class Basket implements Serializable{
             productsNames[i] = data[0];
             prices[i] = Integer.parseInt(data[1]);
             productsCount[i] = Integer.parseInt(data[2]);
-            basket.setCount(basket.productsCount);
+            basket.setCount();
         }
 
         System.out.print("Basket return!:");
@@ -148,8 +107,7 @@ public class Basket implements Serializable{
     public String toString() {
         return "Name:" + (Arrays.deepToString((productsName)) +
                 "Count:" + (Arrays.toString(productsCount)) +
-                "Prices:" + (Arrays.toString(prices)) +
-                "Total:" + sum);
+                "Prices:" + (Arrays.toString(prices)));
     }
 
     protected void printForBuy() {

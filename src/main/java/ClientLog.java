@@ -17,7 +17,7 @@ public class ClientLog {
     }
 
     public void exportCSV(File csvFile) throws IOException {
-        try (CSVWriter writ = new CSVWriter(new FileWriter(csvFile,true))) {
+        try (CSVWriter writ = new CSVWriter(new FileWriter(csvFile,false))) {
             writ.writeNext(inform);
             writ.writeAll(list);
         }

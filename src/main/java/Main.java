@@ -16,23 +16,21 @@ public class Main {
     private static String enabled;
     private static String fileName;
     private static String format;
-    //public int[] prices = {100, 200, 300};
-    //public String[] products = {"Apples", "Bread", "Potatoes"};
 
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ParseException, CloneNotSupportedException {
+    public static void main(String[] args) throws Exception {
         int[] prices = {100, 200, 300};
-        String[] products = {"Apples", "Bread", "Potatoes"};
-        int [] counts = new int[3];
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(new File("shop.xml"));
-        Basket basket = new Basket(prices,products);
-
-        Scanner scanner = new Scanner(System.in);
+        String[] productsName = {"Apples", "Bread", "Potatoes"};
+        Basket basket = new Basket(productsName,prices);
 
         File csvFile = new File("log.csv");
         File textFile = new File("basket.txt");
         File jsonFile = new File("basket.json");
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new File("shop.xml"));
+
+        Scanner scanner = new Scanner(System.in);
         ClientLog log = new ClientLog();
 
 
@@ -40,54 +38,30 @@ public class Main {
         if (enabled.equals("true")) {
             if (jsonFile.exists()) {
                 if (format.equals("json")) {
-                    Basket.load(jsonFile);
+                    basket = Basket.load(new File("basket.json"));
+                    basket.printCart();
+                    basket.printForBuy();
                 } else {
-                    Basket.loadTxtFile(textFile);
+                    Basket basket2 = Basket.loadTxtFile(new File("basket.json"));
                 }
             }
         }
 
-        basket.printForBuy();
+
         while (true) {
             System.out.println("Enter the product number and quantity, or 'end' to exit.");
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("end")) {
-                basket.printCart();
                 break;
             }
 
-            /*String[] parts = input.split(" ");
-            int productNumber = Integer.parseInt(parts[0])-1;
-            int productCount = Integer.parseInt(parts[1]);
-
-            counts[productNumber] += productCount;*/
             String[] parts = input.split(" ");
-            if (parts.length != 2) {
-                continue;
-            }
-
-            int productNumber;
-            try {
-                productNumber = Integer.parseInt(parts[0]) - 1;
-            } catch (NumberFormatException e) {
-                System.out.println("Error!");
-                continue;
-            }
-
-            int productCount;
-            try {
-                productCount = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                System.out.println("Error!");
-                continue;
-            }
-            if (productCount > 50 || productCount <= 0) {
-                System.out.println("Error!");
-                continue;
-            }
-            basket.addToCart(productNumber, productCount);
-            log.log(productNumber + 1, productCount);
+            int number = Integer.parseInt(parts[0]) - 1;
+            int count = Integer.parseInt(parts[1]);
+            basket.addToCart(number, count);
+            log.log(number + 1, count);
         }
+        basket.printCart();
 
         Main.node(doc, "save");
         if (enabled.equals("true")) {
