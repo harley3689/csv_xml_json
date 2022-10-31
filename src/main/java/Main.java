@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         int[] prices = {100, 200, 300};
         String[] productsName = {"Apples", "Bread", "Potatoes"};
-        Basket basket = new Basket(productsName,prices);
+        Basket basket = new Basket(productsName, prices);
 
         File csvFile = new File("log.csv");
         File textFile = new File("basket.txt");
@@ -34,15 +34,15 @@ public class Main {
         ClientLog log = new ClientLog();
 
 
-        Main.node(doc, "load");
+        node(doc, "load");
         if (enabled.equals("true")) {
             if (jsonFile.exists()) {
                 if (format.equals("json")) {
                     basket = Basket.load(new File("basket.json"));
-                    basket.printCart();
                     basket.printForBuy();
                 } else {
-                    Basket basket2 = Basket.loadTxtFile(new File("basket.json"));
+                    basket = Basket.loadTxtFile(new File("basket.json"));
+                    basket.printForBuy();
                 }
             }
         }
@@ -63,7 +63,7 @@ public class Main {
         }
         basket.printCart();
 
-        Main.node(doc, "save");
+        node(doc, "save");
         if (enabled.equals("true")) {
             textFile = new File(fileName + "." + format);
             if (format.equals("json")) {
@@ -74,6 +74,7 @@ public class Main {
             log.exportCSV(csvFile);
         }
     }
+
     private static void node(Document doc, String name) {
         NodeList nodeList = doc.getElementsByTagName(name);
         for (int i = 0; i < nodeList.getLength(); i++) {
